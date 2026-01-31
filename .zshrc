@@ -92,15 +92,13 @@ alias mcp-screenshot-off='claude mcp remove screenshot'
 # }
 
 #git stuffs
-alias gitt='git'
-alias git='hub'
-alias uu='git e | grep UU'
+alias uu='git status -sb | grep UU'
 alias stpush="abort-if-stash-not-empty && git stash save && push && git stash pop"
 alias cwd="pwd | pbcopy"
 alias pushx="git branch | grep \* | cut -d ' ' -f2 | xargs git push -u origin"
 alias push="git pull && git push"
 alias pusht="git push && git push --tags"
-alias pull="hub sync"
+alias pull="git pull"
 alias sha="git rev-parse HEAD | cut -c1-8 | tr -d '\n' | pbcopy"
 alias cherry="git cherry-pick"
 alias main="git checkout main"
@@ -152,8 +150,12 @@ esac
 
 # running with certain 1password secrets available as ENV vars
 opat() {
-  op run --account my.1password.com --env-file="$HOME/.config/op/personal.env" -- "$@"
+	op run --account my.1password.com --env-file="$HOME/.config/op/personal.env" -- "$@"
 }
+# load all env vars from personal.env into the current session (allows skip opat before commands)
 opatsession() {
-  eval $(op run --account my.1password.com --env-file="$HOME/.config/op/personal.env" -- env | grep -E '^[A-Z_]+=')
+	while IFS='=' read -r key ref; do
+		[[ -z "$key" || "$key" =~ ^# ]] && continue
+		export "$key"="$(op read "$ref" --account my.1password.com)"
+	done < "$HOME/.config/op/personal.env"
 }
