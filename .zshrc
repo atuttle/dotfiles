@@ -14,9 +14,8 @@ export LOCALBIN_PATH="/Users/atcodes/.local/bin"
 export GDPR_PATH="/Users/atcodes/dev/AlumnIQ/gdpr"
 export NPM_GLOBALS="/Users/atcodes/.npm_globals/bin"
 export MY_GLOBALS="/Users/atcodes/.bin"
-export COMMANDBOX="/Users/atcodes/.bin/commandbox"
 export PATH="$PATH:$HOME/.opencode/bin"
-export PATH="$GDPR_PATH:$NPM_GLOBALS:$MY_GLOBALS:$COMMANDBOX:$USRLOCALBIN_PATH:$LOCALBIN_PATH:$PATH"
+export PATH="$GDPR_PATH:$NPM_GLOBALS:$MY_GLOBALS:$USRLOCALBIN_PATH:$LOCALBIN_PATH:$PATH"
 export PATH="$PATH:/opt/homebrew/opt/postgresql@15/bin" #postgres 15
 
 # Path to your oh-my-zsh installation.
