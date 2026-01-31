@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Kill all vitest processes
+
+pids=$(ps ax | grep vitest | grep -v grep | awk '{print $1}')
+
+if [ -z "$pids" ]; then
+    echo "No vitest processes found"
+    exit 0
+fi
+
+echo "Killing vitest processes: $pids"
+echo "$pids" | xargs kill -9
+
+echo "Done"

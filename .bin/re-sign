@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Check if we're in a git repository
+if ! git rev-parse --is-inside-work-tree &>/dev/null; then
+    echo -e "${RED}Error: Not inside a git repository${NC}"
+    exit 1
+fi
+
+# Check if there are any commits
+if ! git rev-parse HEAD &>/dev/null; then
+    echo -e "${RED}Error: No commits found in this repository${NC}"
+    exit 1
+fi
+
+echo -e "${BLUE}Analyzing commit signatures...${NC}"
+echo ""
+
+# Get the current branch name
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+echo -e "Current branch: ${GREEN}${current_branch}${NC}"
+echo ""
+
+# Count total commits and find unsigned ones
+# %G? shows signature status: G=good, B=bad, U=untrusted, X=expired, Y=expired key, R=revoked, E=error, N=none
+unsigned_count=0
+total_checked=0
+last_signed_hash=""
+first_unsigned_hash=""
+
+# Read commits from newest to oldest
+while IFS='|' read -r hash sig_status subject; do
+    total_checked=$((total_checked + 1))
+
+    if [[ "$sig_status" == "N" ]]; then
+        unsigned_count=$((unsigned_count + 1))
+        first_unsigned_hash="$hash"
+        echo -e "  ${RED}✗${NC} ${hash:0:8} - ${subject:0:50}"
+    else
+        # Found a signed commit - this is our boundary
+        last_signed_hash="$hash"
+        echo -e "  ${GREEN}✓${NC} ${hash:0:8} - ${subject:0:50} ${GREEN}(signed)${NC}"
+        break
+    fi
+done < <(git log --format='%H|%G?|%s' HEAD)
+
+echo ""
+
+# Handle edge cases
+if [[ $unsigned_count -eq 0 ]]; then
+    echo -e "${GREEN}All commits are already signed!${NC}"
+    exit 0
+fi
+
+if [[ -z "$last_signed_hash" ]]; then
+    echo -e "${YELLOW}Warning: No signed commits found in history.${NC}"
+    echo -e "Found ${RED}${unsigned_count}${NC} unsigned commit(s) going back to the root."
+    echo ""
+    echo -e "${BLUE}To sign all commits from the root, you'll need to use:${NC}"
+    echo -e "  git rebase -i --root --gpg-sign"
+    echo ""
+    read -p "Do you want to proceed with rebasing from root? (y/N) " -n 1 -r
+    echo ""
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo ""
+        echo -e "${YELLOW}Starting interactive rebase from root...${NC}"
+        echo -e "${BLUE}Tip: Change 'pick' to 'edit' for each commit you want to sign, then:${NC}"
+        echo -e "  1. git commit --amend --gpg-sign --no-edit"
+        echo -e "  2. git rebase --continue"
+        echo ""
+        git rebase -i --root --exec "git commit --amend --gpg-sign --no-edit"
+    else
+        echo "Aborted."
+        exit 0
+    fi
+    exit 0
+fi
+
+echo -e "Found ${RED}${unsigned_count}${NC} unsigned commit(s) after the last signed commit."
+echo ""
+echo -e "Last signed commit: ${GREEN}${last_signed_hash:0:8}${NC}"
+echo ""
+
+# Confirm before proceeding
+echo -e "${YELLOW}This will start an interactive rebase to sign the ${unsigned_count} unsigned commit(s).${NC}"
+echo -e "The rebase will automatically amend each commit with your GPG signature."
+echo ""
+read -p "Do you want to proceed? (y/N) " -n 1 -r
+echo ""
+
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo ""
+    echo -e "${BLUE}Starting rebase with automatic signing...${NC}"
+    echo ""
+    # Use --exec to automatically sign each commit during rebase
+    git rebase -i "${last_signed_hash}" --exec "git commit --amend --gpg-sign --no-edit"
+else
+    echo "Aborted."
+    exit 0
+fi

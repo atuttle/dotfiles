@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Kill all zsh processes
+
+pids=$(ps ax | grep zsh | grep -v grep | grep -v claude | awk '{print $1}')
+
+if [ -z "$pids" ]; then
+    echo "No zsh processes found"
+    exit 0
+fi
+
+echo "Killing zsh processes: $pids"
+echo "$pids" | xargs kill -9
+
+echo "Done"

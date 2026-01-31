@@ -1,0 +1,83 @@
+#!/bin/bash
+
+# Check if input file is provided
+if [ -z "$1" ]; then
+    echo "Usage: $0 <input.m4b>"
+    exit 1
+fi
+
+input_file="$1"
+
+# Extract basename without extension
+output_dir=$(basename "$input_file" .m4b)
+
+# Create output directory
+mkdir -p "$output_dir"
+
+# Extract metadata to chapters file in output directory
+chapters_file="$output_dir/chapters.txt"
+ffmpeg -i "$input_file" -f ffmetadata "$chapters_file"
+
+# Count total number of chapters
+total_chapters=$(grep -c '^\[CHAPTER\]' "$chapters_file")
+max_parallel=3
+progress_file="$output_dir/.progress_counter"
+
+# Initialize progress counter
+echo "0" > "$progress_file"
+
+# Function to process a chapter
+process_chapter() {
+    local i=$1
+    local start_time=$2
+    local end_time=$3
+    local output_file=$4
+    local lock_file="$output_dir/.progress_lock"
+    local chapter_num=$((i + 1))
+
+    echo "Starting chapter $chapter_num/$total_chapters..."
+    ffmpeg -i "$input_file" -ss "$start_time" -to "$end_time" -codec:a libmp3lame -qscale:a 2 "$output_file" > /dev/null 2>&1
+
+    # Update progress after completion (using flock for thread safety)
+    (
+        flock -x 200
+        completed_files=$(($(cat "$progress_file") + 1))
+        echo "$completed_files" > "$progress_file"
+        percentage=$((completed_files * 100 / total_chapters))
+        echo "Progress: $percentage% ($completed_files/$total_chapters files completed)"
+    ) 200>"$lock_file"
+}
+
+# Loop through each chapter and extract it
+i=0
+while [ $i -lt $total_chapters ]; do
+    # Get the line number of the (i+1)th chapter marker
+    chapter_line=$(grep -n '^\[CHAPTER\]' "$chapters_file" | sed -n "$((i + 1))p" | cut -d: -f1)
+    if [ -z "$chapter_line" ]; then
+        break
+    fi
+
+    # Extract start time and end time from lines following the chapter marker
+    # Read a few lines after the chapter marker to find START and END
+    start_time=$(sed -n "$chapter_line,$((chapter_line + 5))p" "$chapters_file" | grep 'START' | head -1 | cut -d'=' -f2)
+    end_time=$(sed -n "$chapter_line,$((chapter_line + 5))p" "$chapters_file" | grep 'END' | head -1 | cut -d'=' -f2)
+
+    # Generate output filename in output directory
+    output_file="$output_dir/chapter_$((i + 1)).mp3"
+
+    # Wait if we've reached the maximum parallel jobs
+    while [ $(jobs -r | wc -l) -ge $max_parallel ]; do
+        wait -n  # Wait for any job to complete
+    done
+
+    # Start the chapter extraction in the background
+    process_chapter "$i" "$start_time" "$end_time" "$output_file" &
+
+    i=$((i + 1))
+done
+
+# Wait for all remaining background jobs to complete
+wait
+
+# Clean up temporary files
+rm -f "$progress_file" "$output_dir/.progress_lock"

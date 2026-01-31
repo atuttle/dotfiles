@@ -1,0 +1,220 @@
+#!/usr/bin/env node
+
+/**
+ * Rotates npm granular access token and updates 1Password
+ *
+ * Usage: opat npm_rotate_key
+ *
+ * Expects NPM_TOKEN env var to be set (via opat wrapper)
+ */
+
+import { execSync } from 'child_process';
+import * as readline from 'readline';
+
+const NPM_REGISTRY = 'https://registry.npmjs.org';
+const OP_ITEM_NAME = 'keys_PERSONAL_NPM_TOKEN';
+
+// Token config
+const SCOPES = ['@atuttle', '@atcodes'];
+const EXPIRES_DAYS = 90;
+
+function getTokenName() {
+  const date = new Date().toISOString().split('T')[0];
+  return `m1 - ${date}`;
+}
+
+function prompt(question) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  return new Promise((resolve) => {
+    rl.question(question, (answer) => {
+      rl.close();
+      resolve(answer);
+    });
+  });
+}
+
+async function createToken(currentToken, otp, password) {
+  const tokenName = getTokenName();
+
+  const body = {
+    name: tokenName,
+    password,
+    expires: EXPIRES_DAYS,
+    scopes: SCOPES,
+    packages_and_scopes_permission: 'read-write',
+  };
+
+  const res = await fetch(`${NPM_REGISTRY}/-/npm/v1/tokens`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${currentToken}`,
+      'Content-Type': 'application/json',
+      'npm-otp': otp,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Failed to create token: ${res.status} ${text}`);
+  }
+
+  const data = await res.json();
+  return { token: data.token, id: data.id, name: tokenName };
+}
+
+async function listTokens(token) {
+  const res = await fetch(`${NPM_REGISTRY}/-/npm/v1/tokens`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to list tokens: ${res.status}`);
+  }
+
+  const data = await res.json();
+  return data.objects || [];
+}
+
+async function revokeToken(authToken, tokenId, otp) {
+  const res = await fetch(`${NPM_REGISTRY}/-/npm/v1/tokens/token/${tokenId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${authToken}`,
+      'npm-otp': otp,
+    },
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Failed to revoke token: ${res.status} ${text}`);
+  }
+}
+
+function updateOnePassword(newToken, tokenName, oldTokenId) {
+  const expiresDate = new Date();
+  expiresDate.setDate(expiresDate.getDate() + EXPIRES_DAYS);
+  const expiresStr = expiresDate.toISOString().split('T')[0];
+
+  // Update password field and metadata
+  const cmd = [
+    'op', 'item', 'edit', `"${OP_ITEM_NAME}"`,
+    `password="${newToken}"`,
+    `"token_name=${tokenName}"`,
+    `"expires=${expiresStr}"`,
+    `"scopes=${SCOPES.join(', ')}"`,
+    oldTokenId ? `"previous_token_id=${oldTokenId}"` : '',
+  ].filter(Boolean).join(' ');
+
+  execSync(cmd, { stdio: 'inherit' });
+}
+
+function updateNpmrc(newToken) {
+  const npmrcPath = `${process.env.HOME}/.npmrc`;
+  let content = '';
+
+  try {
+    content = require('fs').readFileSync(npmrcPath, 'utf8');
+  } catch {
+    content = '';
+  }
+
+  // Replace or add the auth token line
+  const tokenLine = `//registry.npmjs.org/:_authToken=${newToken}`;
+  const lines = content.split('\n');
+  let found = false;
+
+  const newLines = lines.map(line => {
+    if (line.startsWith('//registry.npmjs.org/:_authToken=')) {
+      found = true;
+      return tokenLine;
+    }
+    return line;
+  });
+
+  if (!found) {
+    newLines.push(tokenLine);
+  }
+
+  require('fs').writeFileSync(npmrcPath, newLines.join('\n'));
+  console.log('Updated ~/.npmrc');
+}
+
+async function main() {
+  const currentToken = process.env.NPM_TOKEN;
+
+  if (!currentToken) {
+    console.error('Error: NPM_TOKEN env var not set. Run with: opat npm_rotate_key');
+    process.exit(1);
+  }
+
+  console.log('npm token rotation script');
+  console.log('=========================\n');
+  console.log(`Scopes: ${SCOPES.join(', ')}`);
+  console.log(`Expires: ${EXPIRES_DAYS} days`);
+  console.log(`Token name: ${getTokenName()}\n`);
+
+  // Get credentials
+  const password = await prompt('npm password: ');
+  const otp = await prompt('2FA code: ');
+
+  // Find the current token's ID for later revocation
+  console.log('\nListing existing tokens...');
+  const existingTokens = await listTokens(currentToken);
+
+  // Find token that matches our current one (by prefix match since we only see truncated)
+  const currentTokenInfo = existingTokens.find(t =>
+    currentToken.startsWith(t.token) || t.token.startsWith(currentToken.slice(0, 6))
+  );
+
+  const oldTokenId = currentTokenInfo?.id;
+  const oldTokenName = currentTokenInfo?.name;
+
+  if (oldTokenId) {
+    console.log(`Found current token: "${oldTokenName}" (${oldTokenId})`);
+  } else {
+    console.log('Could not identify current token in list (will skip revocation)');
+  }
+
+  // Create new token
+  console.log('\nCreating new token...');
+  const { token: newToken, id: newTokenId, name: tokenName } = await createToken(currentToken, otp, password);
+  console.log(`Created token: "${tokenName}" (${newTokenId})`);
+
+  // Update 1Password
+  console.log('\nUpdating 1Password...');
+  updateOnePassword(newToken, tokenName, oldTokenId);
+
+  // Update local .npmrc
+  console.log('\nUpdating local .npmrc...');
+  updateNpmrc(newToken);
+
+  // Revoke old token (need fresh OTP since time may have passed)
+  if (oldTokenId) {
+    const revokeOtp = await prompt('\n2FA code for revocation (or press enter to skip): ');
+    if (revokeOtp.trim()) {
+      console.log('Revoking old token...');
+      try {
+        await revokeToken(newToken, oldTokenId, revokeOtp);
+        console.log('Old token revoked.');
+      } catch (err) {
+        console.error(`Warning: Could not revoke old token: ${err.message}`);
+        console.log(`You may want to manually revoke token ${oldTokenId} at npmjs.com`);
+      }
+    } else {
+      console.log(`Skipped revocation. Old token ID: ${oldTokenId}`);
+    }
+  }
+
+  console.log('\nDone!');
+}
+
+main().catch(err => {
+  console.error('Error:', err.message);
+  process.exit(1);
+});

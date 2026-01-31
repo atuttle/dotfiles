@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+echo "Adding ralph-scripts to git ignore"
+echo "" >> .gitignore # a blank line
+echo ".ralph" >> .gitignore
+
+echo "Setting up .ralph directory"
+mkdir -p ./.ralph
+cp ~/.ralph/ralph.sh ./.ralph/ralph.sh
+cp ~/.ralph/ralph-once.sh ./.ralph/ralph-once.sh
+cp ~/.ralph/prd.example.json ./.ralph/prd.example.json
+cp ~/.ralph/progress.md ./.ralph/progress.md
+
+echo "Install complete"
+echo "--------------------------------"
+echo "Customize this project's ralph script at .ralph/ralph.sh"
+echo "--------------------------------"
+echo "Usage: plan \"name of feature\""
+echo "Usage: ralph <iterations>"

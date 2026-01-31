@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Function to find the nearest .git directory
+find_git_directory() {
+    current_dir="$PWD"
+    while [ ! -d "$current_dir/.git" ] && [ "$current_dir" != "/" ]; do
+        current_dir=$(dirname "$current_dir")
+    done
+
+    if [ -d "$current_dir/.git" ]; then
+        echo "$current_dir"
+    else
+        echo "Error: Git repository not found."
+        exit 1
+    fi
+}
+
+# Function to pause and resume post-merge hook
+pause_post_merge_hook() {
+    git_directory="$1"
+    if [ -f "$git_directory/.git/hooks/post-merge" ]; then
+        mv "$git_directory/.git/hooks/post-merge" "$git_directory/.git/hooks/post-merge.paused"
+    fi
+}
+
+resume_post_merge_hook() {
+    git_directory="$1"
+    if [ -f "$git_directory/.git/hooks/post-merge.paused" ]; then
+        mv "$git_directory/.git/hooks/post-merge.paused" "$git_directory/.git/hooks/post-merge"
+    fi
+}
+
+# Main script
+main() {
+    git_directory=$(find_git_directory)
+    pause_post_merge_hook "$git_directory"
+
+    # Run git pull
+   #  git -C "$git_directory" pull
+    git pull
+
+    # Resume post-merge hook
+    resume_post_merge_hook "$git_directory"
+}
+
+# Execute the main function
+main

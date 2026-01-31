@@ -1,0 +1,8 @@
+#!/bin/bash
+
+claude "Study ./.ralph/prd.example.json and, if it exists, ./.ralph/prd.json.
+
+Help me plan changes to my project. First give me an opportunity to brain-dump my thoughts, and then when I ask if you have any
+questions, ask relevant/clarifying questions to better understand the problem/solution and then add the result to @./.ralph/prd.json.
+
+After every turn, print a summary of everything in the PRD, one line per item."

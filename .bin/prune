@@ -1,0 +1,2 @@
+#!/bin/bash
+git pull --prune && git branch -vv | grep gone] | node -e "process.stdin.on('data', (data) => {data.toString().split('\n').map(line => { x = line.split(' ')[2]; if (x) console.log(x)})});" | xargs git branch -D
