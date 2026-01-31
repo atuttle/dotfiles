@@ -69,6 +69,7 @@ alias zshrc='cursor $HOME/.zshrc' #edit this file
 alias zs='source $HOME/.zshrc'    #reload this file
 
 alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+alias lgdot='lazygit --git-dir="$HOME/.dotfiles" --work-tree="$HOME"'
 
 alias e="cursor"
 alias cc="claude"
@@ -148,3 +149,11 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+
+# running with certain 1password secrets available as ENV vars
+opat() {
+  op run --account my.1password.com --env-file="$HOME/.config/op/personal.env" -- "$@"
+}
+opatsession() {
+  eval $(op run --account my.1password.com --env-file="$HOME/.config/op/personal.env" -- env | grep -E '^[A-Z_]+=')
+}
