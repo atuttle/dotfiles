@@ -22,13 +22,21 @@ Use this to leave a note for the next person workin in the codebase.
 
 ONLY WORK ON A SINGLE FEATURE.
 If, while implementing the feature, you notice the PRD is complete, output <promise>COMPLETE</promise>.
+
+If you need additional permissions to complete a task, first double-check that you don't already have the permission.
+If you have the necessary permission, then proceed to use it. Else print the permissions you need along with <PROMISE>NEED_PERMISSIONS</PROMISE> and exit.
+I will add them to the .claude/settings.local.json file and re-run.
 ")
 
 	echo "$result"
 
+	if [[ "$result" == *"<PROMISE>NEED_PERMISSIONS</PROMISE>"* ]]; then
+		afplay /System/Library/Sounds/Sosumi.aiff
+		exit 1
+	fi
 	if [[ "$result" == *"<promise>COMPLETE</promise>"* ]]; then
 		echo "PRD complete, exiting."
-		afplay /System/Library/Sounds/Hero.aiff
+		afplay /System/Library/Sounds/Funk.aiff
 		exit 0
 	fi
 done

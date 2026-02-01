@@ -1,0 +1,1 @@
+claude --continue --permission-mode acceptEdits -p "I granted that permission. keep going."
