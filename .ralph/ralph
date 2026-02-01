@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+# set error mode to ensure any errors are thrown
+set -e
+
+if [ -z "$1" ]; then
+	echo "Usage: $0 <iterations>"
+	exit 1
+fi
+
+# output=$(my_command | tee >(cat))
+
+for ((i=1; i<=$1; i++)); do
+	echo "Iteration $i"
+	echo "--------------------------------"
+	result=$(claude --permission-mode acceptEdits -p "study @.ralph/prd.json
+study @.ralph/progress.md
+
+1. Find the highest-priority item to work on and work only on that item.
+This should be the one YOU decide has the highest priority - not necessarily the first item in the list.
+2. Check that the types check via `npm run check` (if available) and that the tests pass via `npm run test` (if available).
+3. Update the PRD with the work that was done.
+4. Append your progress to the progress.md file in a simple format: just a sub-heading with the date and title of the
+work done, and a brief summary of the work done and lessons learned.
+Use this to leave a note for the next person working in the codebase.
+5. Make a git commit of that feature.
+
+ONLY WORK ON A SINGLE FEATURE.
+
+If you get stuck waiting for a permission that has not been granted, output <permission-error>PERMISSION_ERROR</permission-error>.
+
+If, while implementing the feature, you notice the PRD is complete, output <promise>COMPLETE</promise>.
+" | tee /dev/tty)
+
+	# echo "$result"
+
+	if [[ "$result" == *"<permission-error>PERMISSION_ERROR</permission-error>"* ]]; then
+		echo "Permission error, exiting."
+		exit 1
+	fi
+	if [[ "$result" == *"<promise>COMPLETE</promise>"* ]]; then
+		echo "PRD complete, exiting."
+		# afplay /System/Library/Sounds/Hero.aiff
+		exit 0
+	fi
+done
