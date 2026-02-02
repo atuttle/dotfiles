@@ -58,7 +58,7 @@ HIST_STAMPS="yyyy-mm-dd"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git gitfast zsh-syntax-highlighting sudo node npm safe-paste)
+plugins=(git gitfast zsh-syntax-highlighting brew sudo node npm safe-paste)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -70,6 +70,7 @@ alias zs='source $HOME/.zshrc'    #reload this file
 alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 alias lgdot='lazygit --git-dir="$HOME/.dotfiles" --work-tree="$HOME"'
 
+alias rm="trash"
 alias e="cursor"
 alias cc="claude"
 alias cat="bat"
@@ -86,10 +87,6 @@ alias usingport='lsof -nP -i4TCP:$1 | grep LISTEN'
 alias mcp-screenshot-on='claude mcp add screenshot -- node /Users/atcodes/DEV/mcp-screenshot/dist/index.js'
 alias mcp-screenshot-off='claude mcp remove screenshot'
 
-# prune() {
-#     git pull --prune && git branch -vv | grep gone] | node -e "process.stdin.on('data', (data) => {data.toString().split('\n').map(line => { x = line.split(' ')[2]; if (x) console.log(x)})});" | xargs git branch -D
-# }
-
 #git stuffs
 alias uu='git status -sb | grep UU'
 alias stpush="abort-if-stash-not-empty && git stash save && push && git stash pop"
@@ -105,6 +102,9 @@ alias conflicts="git diff --name-only | uniq | grep -v '\.min\.' | grep -v 'cach
 alias cleaned="git diff --name-only | uniq | xargs git add && git status -sb"
 alias update="npx npm-check --update"
 alias co='git checkout'
+prune() {
+	git pull --prune && git branch -vv | grep gone] | node -e "process.stdin.on('data', (data) => {data.toString().split('\n').map(line => { x = line.split(' ')[2]; if (x) console.log(x)})});" | xargs git branch -D
+}
 
 # fpl ("fix package lock") for use when both package.json and package-lock.json get conflicted at the same time
 alias fpl="rm -f package-lock.json && npm install --package-lock-only"
