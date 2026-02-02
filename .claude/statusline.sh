@@ -29,7 +29,7 @@ fi
 # Ralph to-do count
 RALPH_TODO=""
 if [ -f ".ralph/prd.json" ]; then
-    TODO_COUNT=$(cat .ralph/prd.json | grep '"passes": false' | wc -l | xargs)
+    TODO_COUNT=$(cat .ralph/prd.json | grep -E '"passes": false|"status": "pending"' | wc -l | xargs)
     RALPH_TODO=" | RALPH TODO: ${TODO_COUNT}"
 fi
 
