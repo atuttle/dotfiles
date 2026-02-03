@@ -1,0 +1,18 @@
+{
+  "claude-plugins-official": {
+    "source": {
+      "source": "github",
+      "repo": "anthropics/claude-plugins-official"
+    },
+    "installLocation": "/Users/atcodes/.claude/plugins/marketplaces/claude-plugins-official",
+    "lastUpdated": "2026-02-03T20:08:54.233Z"
+  },
+  "cfml-llms-marketplace": {
+    "source": {
+      "source": "directory",
+      "path": "/Users/atcodes/DEV/cfcommunity/llm-marketplace"
+    },
+    "installLocation": "/Users/atcodes/DEV/cfcommunity/llm-marketplace",
+    "lastUpdated": "2026-02-03T20:19:27.064Z"
+  }
+}

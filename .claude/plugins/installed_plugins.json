@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "plugins": {
+    "typescript-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/atcodes/.claude/plugins/cache/claude-plugins-official/typescript-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-03T19:32:26.962Z",
+        "lastUpdated": "2026-02-03T19:32:26.962Z",
+        "gitCommitSha": "27d2b86d72da27c64585150857cee8472ad47abb"
+      }
+    ],
+    "taffy@cfml-llms-marketplace": [
+      {
+        "scope": "user",
+        "installPath": "/Users/atcodes/.claude/plugins/cache/cfml-llms-marketplace/taffy/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-03T20:19:54.867Z",
+        "lastUpdated": "2026-02-03T20:19:54.867Z",
+        "gitCommitSha": "443e618be70390d1b087001dc5c6ee60c3c2ec91"
+      }
+    ]
+  }
+}
