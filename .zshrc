@@ -158,3 +158,6 @@ opatsession() {
 		export "$key"="$(op read "$ref" --account my.1password.com)"
 	done < "$HOME/.config/op/personal.env"
 }
+
+# opencode
+export PATH=/Users/atcodes/.opencode/bin:$PATH

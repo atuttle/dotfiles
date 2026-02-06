@@ -9,8 +9,8 @@ fi
 for ((i=1; i<=$1; i++)); do
 	echo "Iteration $i"
 	echo "--------------------------------"
-	result=$(claude --permission-mode acceptEdits -p "study ralph/prd.json
-study ralph/progress.md
+	result=$(claude --permission-mode acceptEdits -p "study .ralph/prd.json
+study .ralph/progress.md
 
 1. Find the highest-priority item to work on and work only on that item.
 This should be the one YOU decide has the highest priority - not necessarily the first item in the list.
