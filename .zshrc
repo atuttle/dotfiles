@@ -29,6 +29,8 @@ export HOMEDIR=$HOME
 # Use 1password SSH Agent
 export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 
+export TMPDIR=$(getconf DARWIN_USER_TEMP_DIR)
+
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Uncomment one of the following lines to change the auto-update behavior
