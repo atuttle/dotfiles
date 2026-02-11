@@ -1,8 +1,44 @@
 #!/bin/bash
 
-claude "Study ./.ralph/prd.example.json and, if it exists, ./.ralph/prd.json.
+RALPH_DIR="$HOME/DEV/.ralph"
+PRD="$RALPH_DIR/prd.json"
+EXAMPLE="$RALPH_DIR/prd.example.json"
 
-Help me plan changes to my project. First give me an opportunity to brain-dump my thoughts, and then when I ask if you have any
-questions, ask relevant/clarifying questions to better understand the problem/solution and then add the result to @./.ralph/prd.json.
+PROJECT_ID="${1:-}"
+TASK_CONTEXT="${2:-}"
 
-After every turn, print a summary of everything in the PRD, one line per item."
+CONTEXT=""
+if [ -n "$PROJECT_ID" ]; then
+  CONTEXT="You are planning for project id: '$PROJECT_ID'. Use this as the project id (do not auto-generate one)."
+fi
+if [ -n "$TASK_CONTEXT" ]; then
+  CONTEXT="$CONTEXT
+The user wants to plan the following task: $TASK_CONTEXT"
+fi
+
+claude "${CONTEXT:+$CONTEXT
+
+}Study the PRD format example at $EXAMPLE.
+$([ -f "$PRD" ] && echo "Read the current PRD at $PRD to see existing projects.")
+
+You are a planning assistant helping me define work for an autonomous coding agent called Ralph. We are planning tasks for a SINGLE project in this session.
+
+Workflow:
+1. Let me brain-dump my thoughts about what I want to build or change.
+2. Ask clarifying questions — enough that Ralph (an autonomous Claude Code agent) can complete each task without ambiguity. Think about edge cases, dependencies between tasks, and what study files Ralph will need.
+3. When I'm satisfied, write the project entry to $PRD.
+
+When writing to the PRD:
+- If I say I'm updating an existing project, find it by id in $PRD and update it (merge new tasks, update fields). Otherwise add a new project entry.
+- Auto-generate a concise, lowercase, no-spaces id for new projects (e.g. 'auth-flow', 'csv-export').
+- Auto-generate the branch name: feat/<id> for new features, fix/<id> for bug fixes.
+- Set locked: false, complete: false for new projects.
+- Order tasks so Ralph can process them sequentially without blockers (e.g. setup before implementation, implementation before tests).
+- Collect enough notes per task that Ralph has full context — don't assume Ralph has seen our conversation.
+- Ask me for the study and exclude arrays if I don't provide them. Study should include files Ralph needs to read to understand the codebase. Exclude should include paths Ralph shouldn't touch (node_modules, .env, dist, etc).
+- Ask me for verify commands (e.g. 'pnpm run check', 'pnpm run test') — these run after each task to catch regressions.
+
+After writing to $PRD, commit it:
+  cd $RALPH_DIR && git add prd.json && git commit -m 'plan: <project-id>'
+
+After every turn, print a one-line-per-project summary of everything currently in the PRD (project id, task count, complete/incomplete status)."

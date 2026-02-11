@@ -1,1 +1,1 @@
-sh ./.ralph/ralph.sh "$@"
+bash "$HOME/DEV/.ralph/ralph.sh" "$@"

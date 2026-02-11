@@ -26,11 +26,14 @@ if git rev-parse --git-dir > /dev/null 2>&1; then
     fi
 fi
 
-# Ralph to-do count
-RALPH_TODO=""
-if [ -f ".ralph/prd.json" ]; then
-    TODO_COUNT=$(cat .ralph/prd.json | grep -E '"passes": false|"status": "pending"' | wc -l | xargs)
-    RALPH_TODO=" | RALPH TODO: ${TODO_COUNT}"
+# Ralph incomplete task count
+RALPH_INFO=""
+PRD_FILE="$HOME/DEV/.ralph/prd.json"
+if [ -f "$PRD_FILE" ]; then
+    TODO_COUNT=$(jq '[.[].tasks[] | select(.complete == false)] | length' "$PRD_FILE" 2>/dev/null)
+    if [ -n "$TODO_COUNT" ] && [ "$TODO_COUNT" -gt 0 ] 2>/dev/null; then
+        RALPH_INFO=" | RALPH: ${TODO_COUNT}"
+    fi
 fi
 
-echo "[$MODEL] Context: ${TOKENS_USED} / ${CONTEXT_MAX} | +${LINES_ADDED}/-${LINES_REMOVED} | 📂 ${FOLDER_NAME}${GIT_INFO}${RALPH_TODO}"
+echo "[$MODEL] Context: ${TOKENS_USED} / ${CONTEXT_MAX} | +${LINES_ADDED}/-${LINES_REMOVED} | 📂 ${FOLDER_NAME}${GIT_INFO}${RALPH_INFO}"

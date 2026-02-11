@@ -1,4 +1,9 @@
 {
+  "permissions": {
+    "allow": [
+      "WebSearch(*)"
+    ]
+  },
   "statusLine": {
     "type": "command",
     "command": "~/.claude/statusline.sh",
