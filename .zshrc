@@ -67,14 +67,14 @@ source $ZSH/oh-my-zsh.sh
 
 export N_PREFIX="$HOME/n"; [[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH+=":$N_PREFIX/bin"  # Added by n-install (see http://git.io/n-install-repo).
 
-alias zshrc='cursor $HOME/.zshrc' #edit this file
+alias zshrc='e $HOME/.zshrc' #edit this file
 alias zs='source $HOME/.zshrc'    #reload this file
 
 alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 alias lgdot='lazygit --git-dir="$HOME/.dotfiles" --work-tree="$HOME"'
 
 alias rm="trash"
-alias e="cursor"
+alias e="code"
 alias cc="claude"
 alias cat="bat"
 alias ls="exa"
