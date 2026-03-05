@@ -36,4 +36,12 @@ if [ -f "$PRD_FILE" ]; then
     fi
 fi
 
-echo "[$MODEL] Context: ${TOKENS_USED} / ${CONTEXT_MAX} | +${LINES_ADDED}/-${LINES_REMOVED} | 📂 ${FOLDER_NAME}${GIT_INFO}${RALPH_INFO}"
+# Build progress bar (10 chars wide)
+BAR_WIDTH=10
+FILLED=$(echo "$USED_PCT $BAR_WIDTH" | awk '{printf "%d", ($1 / 100) * $2 + 0.5}')
+EMPTY=$(( BAR_WIDTH - FILLED ))
+BAR=""
+for i in $(seq 1 $FILLED); do BAR="${BAR}█"; done
+for i in $(seq 1 $EMPTY); do BAR="${BAR}░"; done
+
+echo "[$MODEL] ${TOKENS_USED} / ${CONTEXT_MAX} ${BAR} | +${LINES_ADDED}/-${LINES_REMOVED} | 📂 ${FOLDER_NAME}${GIT_INFO}${RALPH_INFO}"

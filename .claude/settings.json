@@ -12,13 +12,37 @@
 		"taffy@cfml-llms-marketplace": true,
 		"frontend-design@claude-plugins-official": true
 	},
+	"hooks": {
+		"Stop": [
+			{
+				"matcher": "*",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "printf '\\a' > /dev/tty"
+					}
+				]
+			}
+		],
+		"Notification": [
+			{
+				"matcher": "*",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "printf '\\a' > /dev/tty"
+					}
+				]
+			}
+		]
+	},
 	"sandbox": {
 		"enabled": true,
 		"autoAllowBashIfSandboxed": true,
-		"excludedCommands": ["docker"],
 		"network": {
 			"allowedDomains": ["github.com", "*.npmjs.org"],
 			"allowUnixSockets": ["/var/run/docker.sock"]
-		}
+		},
+		"excludedCommands": ["docker"]
 	}
 }
