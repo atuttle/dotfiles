@@ -9,6 +9,7 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 # If you come from bash you might have to change your $PATH.
+export XDG_CONFIG_HOME="/Users/atcodes/.config"
 export USRLOCALBIN_PATH="/usr/local/bin"
 export LOCALBIN_PATH="/Users/atcodes/.local/bin"
 export GDPR_PATH="/Users/atcodes/dev/AlumnIQ/gdpr"
