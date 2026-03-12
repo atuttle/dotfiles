@@ -70,6 +70,7 @@ export N_PREFIX="$HOME/n"; [[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH+=":$N_PR
 
 alias zshrc='e $HOME/.zshrc' #edit this file
 alias zs='source $HOME/.zshrc'    #reload this file
+alias gconfig='e $HOME/Library/Application\ Support/com.mitchellh.ghostty/config'
 
 alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 alias lgdot='lazygit --git-dir="$HOME/.dotfiles" --work-tree="$HOME"'
@@ -87,6 +88,10 @@ alias dps='docker ps'
 alias dc='docker compose'
 alias ok2merge='labeloktomerge-prs'
 alias usingport='lsof -nP -i4TCP:$1 | grep LISTEN'
+
+#watch the tpm (tmux plugin manager) log
+alias tpmi='bash ~/.tmux/plugins/tpm/bin/install_plugins'
+alias tpmu='bash ~/.tmux/plugins/tpm/bin/clean_plugins'
 
 alias mcp-screenshot-on='claude mcp add screenshot -- node /Users/atcodes/DEV/mcp-screenshot/dist/index.js'
 alias mcp-screenshot-off='claude mcp remove screenshot'
