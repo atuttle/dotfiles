@@ -19,9 +19,12 @@ export COMMANDBOX="/Users/atcodes/.bin/commandbox"
 export PATH="$PATH:$HOME/.opencode/bin"
 export PATH="$GDPR_PATH:$NPM_GLOBALS:$MY_GLOBALS:$USRLOCALBIN_PATH:$LOCALBIN_PATH:$COMMANDBOX:$PATH"
 export PATH="$PATH:/opt/homebrew/opt/postgresql@15/bin" #postgres 15
+export PATH=/Users/atcodes/.opencode/bin:$PATH
 
 # Path to your oh-my-zsh installation.
 export ZSH="/Users/atcodes/.oh-my-zsh"
+
+# AlumnIQ containers/makefiles use this stuff
 export IQ_DEV_HOME=$HOME/DEV/AlumnIQ
 export IQ_DEVELOPER=TUTTLE
 export IQ_LOCALWEB_DEVELOPER_NAME="AdamTuttle"
@@ -72,21 +75,21 @@ alias zshrc='e $HOME/.zshrc' #edit this file
 alias zs='source $HOME/.zshrc'    #reload this file
 alias gconfig='e $HOME/Library/Application\ Support/com.mitchellh.ghostty/config'
 
+# dotfiles stuff; see: https://adamtuttle.codes/blog/2026/getting-my-shit-together-dotfiles-brewfile-1password-ssh-agent/
 alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 alias lgdot='lazygit --git-dir="$HOME/.dotfiles" --work-tree="$HOME"'
 
+# lazy shorthands
 alias rm="trash"
-alias e="code"
-alias cc="claude"
+alias e="zed"
 alias cat="bat"
-alias ls="exa"
-alias ll="exa -al"
+alias ls="eza"
+alias ll="eza -al"
 alias lg="lazygit"
 alias ldo="lazydocker"
 alias mysql="docker run -it --rm mysql bash"
 alias dps='docker ps'
 alias dc='docker compose'
-alias ok2merge='labeloktomerge-prs'
 alias usingport='lsof -nP -i4TCP:$1 | grep LISTEN'
 
 #watch the tpm (tmux plugin manager) log
@@ -96,7 +99,8 @@ alias tpmu='bash ~/.tmux/plugins/tpm/bin/clean_plugins'
 alias mcp-screenshot-on='claude mcp add screenshot -- node /Users/atcodes/DEV/mcp-screenshot/dist/index.js'
 alias mcp-screenshot-off='claude mcp remove screenshot'
 
-#git stuffs
+#git stuff
+alias toqa='co QA && git pull && merge - --no-edit && push && co -'
 alias uu='git status -sb | grep UU'
 alias stpush="abort-if-stash-not-empty && git stash save && push && git stash pop"
 alias cwd="pwd | pbcopy"
@@ -116,7 +120,11 @@ prune() {
 	git pull --prune && git branch -vv | grep gone] | node -e "process.stdin.on('data', (data) => {data.toString().split('\n').map(line => { x = line.split(' ')[2]; if (x) console.log(x)})});" | xargs git branch -D
 }
 
-# fpl ("fix package lock") for use when both package.json and package-lock.json get conflicted at the same time
+#my personal knowledge base
+alias kbdir='cd ~/DEV/my-products/pm'
+alias kb='/Users/atcodes/DEV/my-products/pm/scripts/kb'
+
+# fpl ("fix package lock") for use when package-lock.json get conflicts
 alias fpl="rm -f package-lock.json && npm install --package-lock-only"
 
 bindkey "[D" backward-word
@@ -169,5 +177,5 @@ opatsession() {
 	done < "$HOME/.config/op/personal.env"
 }
 
-# opencode
-export PATH=/Users/atcodes/.opencode/bin:$PATH
+# => opw aws ...
+alias opw='$IQ_DEV_HOME/iq_platform_devops/op/opw.sh'
