@@ -3,10 +3,11 @@
 # theme=Breeze
 # theme=Ayu Light
 
-theme=Bluloco Dark
-keybind = global:ctrl+\=toggle_quick_terminal
-quick-terminal-position=right
-quick-terminal-size=50%
-quick-terminal-autohide=false
+theme=dark:Bluloco Dark,light:Adwaita
 initial-window=true
-font-size=20
+font-size=18
+
+# keybind = global:ctrl+\=toggle_quick_terminal
+# quick-terminal-position=right
+# quick-terminal-size=50%
+# quick-terminal-autohide=false
