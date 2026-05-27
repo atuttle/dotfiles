@@ -1,48 +1,122 @@
 {
-	"permissions": {
-		"allow": ["WebSearch(*)"]
-	},
-	"statusLine": {
-		"type": "command",
-		"command": "~/.claude/statusline.sh",
-		"padding": 0
-	},
-	"enabledPlugins": {
-		"typescript-lsp@claude-plugins-official": true,
-		"taffy@cfml-llms-marketplace": true,
-		"frontend-design@claude-plugins-official": true
-	},
-	"hooks": {
-		"Stop": [
-			{
-				"matcher": "*",
-				"hooks": [
-					{
-						"type": "command",
-						"command": "printf '\\a' > /dev/tty"
-					}
-				]
-			}
-		],
-		"Notification": [
-			{
-				"matcher": "*",
-				"hooks": [
-					{
-						"type": "command",
-						"command": "printf '\\a' > /dev/tty"
-					}
-				]
-			}
-		]
-	},
-	"sandbox": {
-		"enabled": true,
-		"autoAllowBashIfSandboxed": true,
-		"network": {
-			"allowedDomains": ["github.com", "*.npmjs.org"],
-			"allowUnixSockets": ["/var/run/docker.sock"]
-		},
-		"excludedCommands": ["docker"]
-	}
+  "env": {
+    "CLAUDE_CODE_DISABLE_1M_CONTEXT": "1"
+  },
+  "permissions": {
+    "allow": [
+      "WebSearch(*)",
+      "mcp__mcp-brain__*",
+      "Bash(git -c gpg.format=ssh -c gpg.ssh.program=ssh-keygen -c user.signingkey=/Users/atcodes/.ssh/id_claude.pub commit:*)",
+      "Bash(git status:*)",
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)",
+      "Bash(git push:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git ls-remote:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git add:*)",
+      "Bash(git -C /Users/atcodes/DEV/AlumnIQ/AlumnIQ worktree remove:*)",
+      "Bash(pwd)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr edit:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh issue comment:*)",
+      "Bash(gh label list:*)",
+      "Bash(rm .pr-body-*)",
+      "Bash(rm .issue-comment-*)"
+    ],
+    "additionalDirectories": [
+      "/Users/atcodes/DEV/AlumnIQ/AlumnIQ/.clone"
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh",
+    "padding": 0
+  },
+  "enabledPlugins": {
+    "typescript-lsp@claude-plugins-official": true,
+    "taffy@cfml-llms-marketplace": true,
+    "frontend-design@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "svelte": {
+      "source": {
+        "source": "github",
+        "repo": "sveltejs/ai-tools"
+      }
+    }
+  },
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true,
+    "network": {
+      "allowedDomains": [
+        "github.com",
+        "api.github.com",
+        "*.npmjs.org"
+      ],
+      "allowUnixSockets": [
+        "/var/run/docker.sock",
+        "/Users/atcodes/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+      ]
+    },
+    "excludedCommands": [
+      "docker"
+    ]
+  },
+  "spinnerVerbs": {
+    "mode": "append",
+    "verbs": [
+      "Hallucinating",
+      "Vibing",
+      "Farting",
+      "Scheming",
+      "Conspiring",
+      "Plotting",
+      "Podcasting"
+    ]
+  },
+  "effortLevel": "medium",
+  "theme": "dark-daltonized",
+  "remoteControlAtStartup": false,
+  "skipAutoPermissionPrompt": true,
+  "_hooks": {
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '\\a' > /dev/tty"
+          }
+        ]
+      }
+    ],
+    "_Notification": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '\\a' > /dev/tty"
+          }
+        ]
+      }
+    ],
+    "_PermissionRequest": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ralph-notify 'FATHER I NEED YOU!'"
+          }
+        ]
+      }
+    ]
+  }
 }
