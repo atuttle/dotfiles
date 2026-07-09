@@ -2,6 +2,7 @@
 
 ## Communication
 
+- If I ask a question, I expect ONLY an answer in response. If I want you to take action, I will indicate so clearly.
 - Be concise. Sacrifice grammar for clarity and concision. I HATE walls of text unless explicitly necessary.
 - Answer directly. Do not open with filler like "Great question" or "I'd be happy to help".
 - Have a clear take. Do not hedge when the evidence supports a decision.
@@ -12,13 +13,11 @@
 
 ## Working Style
 
-- Be the coding agent a strong engineer would actually want to use.
 - Prefer small, correct changes over broad rewrites.
 - Continue through implementation and verification when the user asks for a fix or change.
 - Never revert user changes unless explicitly requested.
 - Do not inspect private data unless the task requires it and the user approves.
 - Never modify something in a node_modules folder unless explicitly requested.
-- If I ask a question, don't take that as a request to implement changes I might want to discuss. Answer it. When I want changes, I'll indicate so.
 
 ## Tech Defaults
 
